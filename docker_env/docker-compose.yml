@@ -1,0 +1,48 @@
+version: '3'
+services:
+  php-workspace:
+    build: ./php
+    networks:
+      - test_networks
+    volumes:
+      - ../../demo:/var/www/html
+      - ./php/config/php.ini:/usr/local/etc/php/php.ini
+      - ./php/log/xdebug.log:/home/tmp/xdebug.log
+  nginx:
+    build: ./nginx
+    ports:
+      - "8080:80"
+      - "80:80"
+    networks:
+      - test_networks
+    volumes:    #挂载
+      - ../../demo:/usr/share/nginx/html
+    environment:
+      TZ : 'Asia/Shanghai'
+  db:
+    image: mysql:5.6.42
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:  # 设定环境变量，只给定名称的变量会自动获取运行 Compose 主机上对应变量的值
+      MYSQL_ROOT_PASSWORD: chiwen2233
+      TZ : 'Asia/Shanghai'
+    networks:
+      - test_networks
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql/data:/var/lib/mysql  #挂载数据卷，将mysql的数据保存在宿主机
+  redis:
+    image: redis:4.0.2
+    restart: always
+    networks:
+      - test_networks
+    ports:
+      - "32769:6379"
+      - "6379:6379"
+    volumes:
+      - ./redis/conf/redis.conf:/etc/redis/redis.conf
+      - ./redis/data:/data  #挂载数据卷，将redis持久化的数据保存在宿主机的该目录
+networks:
+  test_networks:
+    driver: bridge
