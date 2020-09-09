@@ -1,1 +1,4 @@
 php/log/xdebug.log
+mysql/data/
+mysql/sourceData/
+redis/data/
