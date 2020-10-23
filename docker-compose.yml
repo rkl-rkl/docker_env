@@ -1,26 +1,29 @@
 version: '3'
 services:
-  php-workspace:
+  php_fpm:
     build: ./php
+    container_name: docker_php_fpm
     networks:
       - test_networks
     volumes:
-      - ../../demo:/var/www/html
+      - ../../DanDan/Demo:/var/www/html
       - ./php/config/php.ini:/usr/local/etc/php/php.ini
       - ./php/log/xdebug.log:/home/tmp/xdebug.log
   nginx:
     build: ./nginx
+    container_name: docker_nginx
     ports:
       - "8080:80"
       - "80:80"
     networks:
       - test_networks
     volumes:    #挂载
-      - ../../demo:/usr/share/nginx/html
+      - ../../DanDan/Demo:/usr/share/nginx/html
     environment:
       TZ : 'Asia/Shanghai'
   db:
     image: mysql:5.6.42
+    container_name: docker_mysql
     command: --default-authentication-plugin=mysql_native_password
     restart: always
     environment:  # 设定环境变量，只给定名称的变量会自动获取运行 Compose 主机上对应变量的值
@@ -34,6 +37,7 @@ services:
       - ./mysql/data:/var/lib/mysql  #挂载数据卷，将mysql的数据保存在宿主机
   redis:
     image: redis:4.0.2
+    container_name: docker_redis
     restart: always
     networks:
       - test_networks
