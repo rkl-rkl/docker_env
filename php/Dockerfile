@@ -1,5 +1,7 @@
 FROM php:7.1-fpm-alpine
 
+MAINTAINER  renkeliang (renkeliang@foxmail.com)
+
 #  修改镜像源
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories
 

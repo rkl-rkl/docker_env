@@ -3,6 +3,7 @@ services:
   php_fpm:
     build: ./php
     container_name: docker_php_fpm
+    restart: always
     networks:
       - test_networks
     volumes:
@@ -12,6 +13,7 @@ services:
   nginx:
     build: ./nginx
     container_name: docker_nginx
+    restart: always
     ports:
       - "8080:80"
       - "80:80"
