@@ -1,5 +1,7 @@
 FROM php:7.1-fpm-alpine
 
+MAINTAINER  renkeliang (renkeliang@foxmail.com)
+
 #  修改镜像源
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories
 
@@ -34,6 +36,9 @@ RUN apk add ${PHPIZE_DEPS}
 # docker-php-ext-install是docker官方提供的一个安装命令，可以安装大部分php拓展，但是仍有部分拓展无法安装
 #  pdo_mysql拓展
 RUN docker-php-ext-install pdo_mysql
+
+#  mysqli拓展
+RUN docker-php-ext-install mysqli
 
 # bcMatch拓展
 RUN docker-php-ext-install bcmath
