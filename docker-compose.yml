@@ -6,7 +6,7 @@ services:
     networks:
       - test_networks
     volumes:
-      - ../../DanDan/Demo:/var/www/html
+      - ../../web:/var/www/html
       - ./php/config/php.ini:/usr/local/etc/php/php.ini
       - ./php/log/xdebug.log:/home/tmp/xdebug.log
   nginx:
@@ -18,7 +18,7 @@ services:
     networks:
       - test_networks
     volumes:    #挂载
-      - ../../DanDan/Demo:/usr/share/nginx/html
+      - ../../web:/usr/share/nginx/html
     environment:
       TZ : 'Asia/Shanghai'
   db:

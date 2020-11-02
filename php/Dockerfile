@@ -35,6 +35,9 @@ RUN apk add ${PHPIZE_DEPS}
 #  pdo_mysql拓展
 RUN docker-php-ext-install pdo_mysql
 
+#  mysqli拓展
+RUN docker-php-ext-install mysqli
+
 # bcMatch拓展
 RUN docker-php-ext-install bcmath
 
