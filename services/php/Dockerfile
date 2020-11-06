@@ -1,13 +1,14 @@
-FROM php:7.1-fpm-alpine
+ARG PHP_VERSION
+FROM ${PHP_VERSION}
 
-MAINTAINER  renkeliang (renkeliang@foxmail.com)
+ARG CONTAINER_PACKAGE_URL
+ARG MAINTAINER_NAME
+ARG MAINTAINER_EMAIL
 
-COPY ./config/php.ini /usr/local/etc/php/php.ini
-
-COPY ./log/xdebug.log /home/tmp/xdebug.log
+MAINTAINER  ${MAINTAINER_NAME} (renkeliang@foxmail.com)
 
 #  修改镜像源
-RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories
+RUN if [ $CONTAINER_PACKAGE_URL ] ; then sed -i "s/dl-cdn.alpinelinux.org/${CONTAINER_PACKAGE_URL}/g" /etc/apk/repositories ; fi
 
 # Packages
 # RUN apt-get update \

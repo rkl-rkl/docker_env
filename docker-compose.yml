@@ -1,23 +1,30 @@
 version: '3'
 services:
-  go:
-    build: ./go
-    container_name: docker_go
-    restart: always
-    networks:
-      - test_networks
-    volumes:
-      - ../../DanDan/Demo:/go/src
+  # go:
+  #   build: ./go
+  #   container_name: docker_go
+  #   restart: always
+  #   networks:
+  #     - test_networks
+  #   volumes:
+  #     - ../../DanDan/Demo:/go/src
   php_fpm:
-    build: ./php
+    build:
+      context: ./services/php
+      args:
+        PHP_VERSION: php:${PHP_VERSION}-fpm-alpine
+        CONTAINER_PACKAGE_URL: ${CONTAINER_PACKAGE_URL}
+        MAINTAINER_NAME: ${MAINTAINER_NAME}
+        MAINTAINER_EMAIL: ${MAINTAINER_EMAIL}
+        TZ: "$TZ"
     container_name: docker_php_fpm
     restart: always
     networks:
       - test_networks
     volumes:
-      - ../../DanDan/Demo:/var/www/html
-      - ./php/config/php.ini:/usr/local/etc/php/php.ini
-      - ./php/log/xdebug.log:/home/tmp/xdebug.log
+      - ${SOURCE_DIR}:/var/www/html
+      - ${PHP_CONF_INI}:/usr/local/etc/php/php.ini
+      - ${PHP_DEBUG_FILE}:/home/tmp/xdebug.log
   nginx:
     build: ./nginx
     container_name: docker_nginx
@@ -57,8 +64,6 @@ services:
     volumes:
       - ./redis/conf/redis.conf:/etc/redis/redis.conf
       - ./redis/data:/data  #挂载数据卷，将redis持久化的数据保存在宿主机的该目录
-volumes:
-  
 networks:
   test_networks:
     driver: bridge
