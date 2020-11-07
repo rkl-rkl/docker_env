@@ -14,6 +14,7 @@ services:
         PHP_VERSION: php:${PHP_VERSION}-fpm-alpine
         CONTAINER_PACKAGE_URL: ${CONTAINER_PACKAGE_URL}
         MAINTAINER: ${MAINTAINER}
+        SYSTEM_ENV: ${SYSTEM_ENV}
       context: ./services/php
     container_name: docker_php_fpm
     restart: always
@@ -46,7 +47,6 @@ services:
   db:
     image: mysql:${MYSQL_VERSION}
     container_name: docker_mysql
-    # command: --default-authentication-plugin=mysql_native_password
     restart: always
     environment:  # 设定环境变量，只给定名称的变量会自动获取运行 Compose 主机上对应变量的值
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}

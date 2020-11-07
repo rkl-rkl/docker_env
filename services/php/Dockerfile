@@ -3,6 +3,7 @@ FROM ${PHP_VERSION}
 
 ARG CONTAINER_PACKAGE_URL
 ARG MAINTAINER
+ARG SYSTEM_ENV
 
 MAINTAINER  ${MAINTAINER}
 
@@ -50,32 +51,32 @@ RUN docker-php-ext-install bcmath
 #  redis拓展
 RUN pecl install redis-4.0.2 && docker-php-ext-enable redis
 
-# xdebug拓展
-RUN pecl install http://pecl.php.net/get/xdebug-2.9.6.tgz && docker-php-ext-enable xdebug \
-	&& echo "zend_extension=$(find /usr/local/lib/php/extensions/ -name xdebug.so)" >> /usr/local/etc/php/conf.d/xdebug.ini \
-	# 启用远程调试
-	&& echo "xdebug.remote_enable = on" >> /usr/local/etc/php/conf.d/xdebug.ini \
-	&& echo "xdebug.remote_autostart = off" >> /usr/local/etc/php/conf.d/xdebug.ini \
-	# 单人开发时，即已经明确知道IDE调试器的ip和端口时，会使用到下面这两个配置
-	#【IDE调试器】的所在ip和端口，用于xdebug插件连接调试器的配置。当IDE所运行的环境和PHP环境一致，可以填127.0.0.1，否则只能填IDE的运行环境ip
-	&& echo "xdebug.remote_host=192.168.12.58" >> /usr/local/etc/php/conf.d/xdebug.ini \
-	&& echo "xdebug.remote_port=9000" >> /usr/local/etc/php/conf.d/xdebug.ini \
-	# 多人团队开发时，IDE的所在ip和端口有多个，不明确，此时不需要配置【remote_host】和【remote_port】，但是需要开启【remote_connect_back】为 on
-	# 团队开发时，IDE有多个，也就意味着有多个目标ip，因此xdebug不会通过读取【remote_host】和【remote_port】的配置去连接目标IDE，而是获取请求中的
-	# 【HTTP_X_FORWARDED_FOR】 和 【REMOTE_ADDR】内的ip，优先读取前者
-	# xdebug 是否根据请求地址，返回调试数据（适合团队开发），即IDE所在机器ip未知/团队开发
-	&& echo "xdebug.remote_connect_back=0" >> /usr/local/etc/php/conf.d/xdebug.ini \
-	# 开启性能分析，分析的记录会放到 remote_log 中，需要使用 KCacheGrind工具打开
-	&& echo "xdebug.profiler_enable=1" >> /usr/local/etc/php/conf.d/xdebug.ini \
-	# 通知 PHP 开启调试的标识
-	&& echo "xdebug.idekey=PHPSTORM" >> /usr/local/etc/php/conf.d/xdebug.ini \
-	# 记录 xdebug与调试器会话 日志
-	&& echo "xdebug.remote_log='/home/tmp/xdebug.log'" >> /usr/local/etc/php/conf.d/xdebug.ini
+# xdebug拓展，只在开发环境安装
+RUN if [[ $SYSTEM_ENV = "local" ]]; then pecl install http://pecl.php.net/get/xdebug-2.9.6.tgz && docker-php-ext-enable xdebug \
+		&& echo "zend_extension=$(find /usr/local/lib/php/extensions/ -name xdebug.so)" >> /usr/local/etc/php/conf.d/xdebug.ini \
+		# 启用远程调试
+		&& echo "xdebug.remote_enable = on" >> /usr/local/etc/php/conf.d/xdebug.ini \
+		&& echo "xdebug.remote_autostart = off" >> /usr/local/etc/php/conf.d/xdebug.ini \
+		# 单人开发时，即已经明确知道IDE调试器的ip和端口时，会使用到下面这两个配置
+		#【IDE调试器】的所在ip和端口，用于xdebug插件连接调试器的配置。当IDE所运行的环境和PHP环境一致，可以填127.0.0.1，否则只能填IDE的运行环境ip
+		&& echo "xdebug.remote_host=192.168.12.58" >> /usr/local/etc/php/conf.d/xdebug.ini \
+		&& echo "xdebug.remote_port=9000" >> /usr/local/etc/php/conf.d/xdebug.ini \
+		# 多人团队开发时，IDE的所在ip和端口有多个，不明确，此时不需要配置【remote_host】和【remote_port】，但是需要开启【remote_connect_back】为 on
+		# 团队开发时，IDE有多个，也就意味着有多个目标ip，因此xdebug不会通过读取【remote_host】和【remote_port】的配置去连接目标IDE，而是获取请求中的
+		# 【HTTP_X_FORWARDED_FOR】 和 【REMOTE_ADDR】内的ip，优先读取前者
+		# xdebug 是否根据请求地址，返回调试数据（适合团队开发），即IDE所在机器ip未知/团队开发
+		&& echo "xdebug.remote_connect_back=0" >> /usr/local/etc/php/conf.d/xdebug.ini \
+		# 开启性能分析，分析的记录会放到 remote_log 中，需要使用 KCacheGrind工具打开
+		&& echo "xdebug.profiler_enable=1" >> /usr/local/etc/php/conf.d/xdebug.ini \
+		# 通知 PHP 开启调试的标识
+		&& echo "xdebug.idekey=PHPSTORM" >> /usr/local/etc/php/conf.d/xdebug.ini \
+		# 记录 xdebug与调试器会话 日志
+		&& echo "xdebug.remote_log='/home/tmp/xdebug.log'" >> /usr/local/etc/php/conf.d/xdebug.ini; fi
 
 ## 安装composer
-RUN curl -sS https://getcomposer.org/installer \
-    | php -- --install-dir=/usr/local/bin --filename=composer \
-    # 国内镜像加速
-    && composer config -g repo.packagist composer ${CONTAINER_PACKAGE_URL}/composer/
+RUN curl -o /usr/bin/composer https://mirrors.aliyun.com/composer/composer.phar \
+    && chmod +x /usr/bin/composer \
+    && composer config -g repo.packagist composer https://mirrors.aliyun.com/composer
+ENV COMPOSER_HOME=/tmp/composer
 
 RUN apk del  ${PHPIZE_DEPS}
