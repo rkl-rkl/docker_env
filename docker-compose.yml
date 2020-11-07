@@ -10,60 +10,66 @@ services:
   #     - ../../DanDan/Demo:/go/src
   php_fpm:
     build:
-      context: ./services/php
       args:
         PHP_VERSION: php:${PHP_VERSION}-fpm-alpine
         CONTAINER_PACKAGE_URL: ${CONTAINER_PACKAGE_URL}
-        MAINTAINER_NAME: ${MAINTAINER_NAME}
-        MAINTAINER_EMAIL: ${MAINTAINER_EMAIL}
-        TZ: "$TZ"
+        MAINTAINER: ${MAINTAINER}
+      context: ./services/php
     container_name: docker_php_fpm
     restart: always
     networks:
       - test_networks
     volumes:
-      - ${SOURCE_DIR}:/var/www/html
-      - ${PHP_CONF_INI}:/usr/local/etc/php/php.ini
+      - ${SOURCE_DIR}:/var/www/html:rw
+      - ${PHP_CONF_INI}:/usr/local/etc/php/php.ini:ro
       - ${PHP_DEBUG_FILE}:/home/tmp/xdebug.log
   nginx:
-    build: ./nginx
+    build:
+      args:
+        NGINX_VERSION: ${NGINX_VERSION}
+        MAINTAINER: ${MAINTAINER}
+      context: ./services/nginx
     container_name: docker_nginx
     restart: always
     ports:
-      - "8080:80"
-      - "80:80"
+      - "${NGINX_HTTP_PORT}:80"
+      - "${NGINX_HTTPS_PORT}:443"
     networks:
       - test_networks
     volumes:    #挂载
-      - ../../DanDan/Demo:/usr/share/nginx/html
+      - ${SOURCE_DIR}:/usr/share/nginx/html/:rw
+      - ${NGINX_CONFD_DIR}:/etc/nginx/conf.d/:rw
+      - ${NGINX_CONF}:/etc/nginx/nginx.conf:ro
+      - ${NGINX_LOG_DIR}:/var/log/nginx/:rw
     environment:
-      TZ : 'Asia/Shanghai'
+      TZ: "$TZ"
   db:
-    image: mysql:5.6.42
+    image: mysql:${MYSQL_VERSION}
     container_name: docker_mysql
-    command: --default-authentication-plugin=mysql_native_password
+    # command: --default-authentication-plugin=mysql_native_password
     restart: always
     environment:  # 设定环境变量，只给定名称的变量会自动获取运行 Compose 主机上对应变量的值
-      MYSQL_ROOT_PASSWORD: chiwen2233
-      TZ : 'Asia/Shanghai'
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      TZ: "$TZ"
     networks:
       - test_networks
     ports:
-      - "3306:3306"
+      - "${MYSQL_PORT}:3306"
     volumes:
-      - ./mysql/data:/var/lib/mysql  #挂载数据卷，将mysql的数据保存在宿主机
+      - ${MYSQL_DATA}:/var/lib/mysql/:rw  #挂载数据卷，将mysql的数据保存在宿主机
   redis:
-    image: redis:4.0.2
+    image: redis:${REDIS_VERSION}
     container_name: docker_redis
     restart: always
     networks:
       - test_networks
     ports:
-      - "32769:6379"
-      - "6379:6379"
+      - "${REDIS_PORT}:6379"
     volumes:
-      - ./redis/conf/redis.conf:/etc/redis/redis.conf
-      - ./redis/data:/data  #挂载数据卷，将redis持久化的数据保存在宿主机的该目录
+      - ${REDIS_CONF}:/etc/redis/redis.conf:ro
+      - ${REDIS_DATA}:/data:rw  #挂载数据卷，将redis持久化的数据保存在宿主机的该目录
+    environment:
+      TZ: "$TZ"
 networks:
   test_networks:
     driver: bridge

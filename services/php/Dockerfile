@@ -2,10 +2,9 @@ ARG PHP_VERSION
 FROM ${PHP_VERSION}
 
 ARG CONTAINER_PACKAGE_URL
-ARG MAINTAINER_NAME
-ARG MAINTAINER_EMAIL
+ARG MAINTAINER
 
-MAINTAINER  ${MAINTAINER_NAME} (renkeliang@foxmail.com)
+MAINTAINER  ${MAINTAINER}
 
 #  修改镜像源
 RUN if [ $CONTAINER_PACKAGE_URL ] ; then sed -i "s/dl-cdn.alpinelinux.org/${CONTAINER_PACKAGE_URL}/g" /etc/apk/repositories ; fi
@@ -77,6 +76,6 @@ RUN pecl install http://pecl.php.net/get/xdebug-2.9.6.tgz && docker-php-ext-enab
 RUN curl -sS https://getcomposer.org/installer \
     | php -- --install-dir=/usr/local/bin --filename=composer \
     # 国内镜像加速
-    && composer config -g repo.packagist composer https://mirrors.aliyun.com/composer/
+    && composer config -g repo.packagist composer ${CONTAINER_PACKAGE_URL}/composer/
 
 RUN apk del  ${PHPIZE_DEPS}

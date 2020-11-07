@@ -1,8 +1,0 @@
-sdasf[6] Log opened at 2020-08-24 08:34:47
-sdasf[6] Log opened at 2020-08-24 08:34:47
-[6] I: Connecting to configured address/port: 192.168.12.58:9000.
-[6] I: Connected to client. :-)
-[6] -> <init xmlns="urn:debugger_protocol_v1" xmlns:xdebug="https://xdebug.org/dbgp/xdebug" fileuri="file:///var/www/html/baseYII/basic/web/index.php" language="PHP" xdebug:language_version="7.1.33" protocol_version="1.0" appid="6" idekey="PHPSTORM"><engine version="2.9.6"><![CDATA[Xdebug]]></engine><author><![CDATA[Derick Rethans]]></author><url><![CDATA[https://xdebug.org]]></url><copyright><![CDATA[Copyright (c) 2002-2020 by Derick Rethans]]></copyright></init>
-
-[6] <- feature_set -i 1 -n show_hidden -v 1
-[6] -> <response xmlns="urn:debugger_protocol_v1" xmlns:xdebug="https://xdebug.org/dbgp/xdebug" command="feature_set" transaction_id="1" feature="show_hidden" success="1"></response>
