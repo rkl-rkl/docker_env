@@ -1,13 +1,18 @@
 version: '3'
 services:
-  # go:
-  #   build: ./go
-  #   container_name: docker_go
-  #   restart: always
-  #   networks:
-  #     - test_networks
-  #   volumes:
-  #     - ../../DanDan/Demo:/go/src
+  go:
+    build: 
+      args:
+        GO_VERSION: golang:${GO_VERSION}
+        GOPROXY: ${GOPROXY}
+        MAINTAINER: ${MAINTAINER}
+      context: ./services/go
+    container_name: docker_go
+    restart: always
+    networks:
+      - test_networks
+    volumes:
+      - ${GO_SOURCE_DIR}:/go/src:rw
   php_fpm:
     build:
       args:
