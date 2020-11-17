@@ -1,18 +1,18 @@
 version: '3'
 services:
-  go:
-    build: 
-      args:
-        GO_VERSION: golang:${GO_VERSION}
-        GOPROXY: ${GOPROXY}
-        MAINTAINER: ${MAINTAINER}
-      context: ./services/go
-    container_name: docker_go
-    restart: always
-    networks:
-      - test_networks
-    volumes:
-      - ${GO_SOURCE_DIR}:/go/src:rw
+  # go:
+  #   build: 
+  #     args:
+  #       GO_VERSION: golang:${GO_VERSION}
+  #       GOPROXY: ${GOPROXY}
+  #       MAINTAINER: ${MAINTAINER}
+  #     context: ./services/go
+  #   container_name: docker_go
+  #   restart: always
+  #   networks:
+  #     - test_networks
+  #   volumes:
+  #     - ${GO_SOURCE_DIR}:/go/src:rw
   php_fpm:
     build:
       args:
@@ -28,7 +28,9 @@ services:
     volumes:
       - ${SOURCE_DIR}:/var/www/html:rw
       - ${PHP_CONF_INI}:/usr/local/etc/php/php.ini:ro
-      - ${PHP_DEBUG_FILE}:/home/tmp/xdebug.log
+      - ${PHP_LOG_DIR}:/var/log/php
+    environment:
+      TZ: "$TZ"
   nginx:
     build:
       args:

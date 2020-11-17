@@ -71,7 +71,7 @@ RUN if [[ $SYSTEM_ENV = "local" ]]; then pecl install http://pecl.php.net/get/xd
 		# 通知 PHP 开启调试的标识
 		&& echo "xdebug.idekey=PHPSTORM" >> /usr/local/etc/php/conf.d/xdebug.ini \
 		# 记录 xdebug与调试器会话 日志
-		&& echo "xdebug.remote_log='/home/tmp/xdebug.log'" >> /usr/local/etc/php/conf.d/xdebug.ini; fi
+		&& echo "xdebug.remote_log='/var/log/php/xdebug.log'" >> /usr/local/etc/php/conf.d/xdebug.ini; fi
 
 ## 安装composer
 RUN curl -o /usr/bin/composer https://mirrors.aliyun.com/composer/composer.phar \
