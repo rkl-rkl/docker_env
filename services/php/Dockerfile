@@ -4,6 +4,7 @@ FROM ${PHP_VERSION}
 ARG CONTAINER_PACKAGE_URL
 ARG MAINTAINER
 ARG SYSTEM_ENV
+ARG EXTENSION_REDIS
 
 MAINTAINER  ${MAINTAINER}
 
@@ -48,10 +49,15 @@ RUN docker-php-ext-install mysqli
 # bcMatch拓展
 RUN docker-php-ext-install bcmath
 
+RUN pecl channel-update pecl.php.net
 #  redis拓展
-RUN pecl install redis-4.0.2 && docker-php-ext-enable redis
+RUN pecl install redis-${EXTENSION_REDIS} && docker-php-ext-enable redis
 
-# xdebug拓展，只在开发环境安装
+# swoole扩展
+# RUN pecl install swoole-4.5.10 && docker-php-ext-enable swoole
+
+
+#xdebug拓展，只在开发环境安装
 RUN if [[ $SYSTEM_ENV = "local" ]]; then pecl install http://pecl.php.net/get/xdebug-2.9.6.tgz && docker-php-ext-enable xdebug \
 		&& echo "zend_extension=$(find /usr/local/lib/php/extensions/ -name xdebug.so)" >> /usr/local/etc/php/conf.d/xdebug.ini \
 		# 启用远程调试

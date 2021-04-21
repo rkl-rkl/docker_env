@@ -20,6 +20,7 @@ services:
         CONTAINER_PACKAGE_URL: ${CONTAINER_PACKAGE_URL}
         MAINTAINER: ${MAINTAINER}
         SYSTEM_ENV: ${SYSTEM_ENV}
+        EXTENSION_REDIS: ${PHP_EXTENSION_REDIS}
       context: ./services/php
     container_name: docker_php_fpm
     restart: always
@@ -28,7 +29,7 @@ services:
     volumes:
       - ${SOURCE_DIR}:/var/www/html:rw
       - ${PHP_CONF_INI}:/usr/local/etc/php/php.ini:ro
-      - ${PHP_LOG_DIR}:/var/log/php
+      - ${PHP_LOG_DIR}:/var/log:rw
     environment:
       TZ: "$TZ"
   nginx:
