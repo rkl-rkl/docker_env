@@ -40,27 +40,27 @@ RUN if [ $CONTAINER_PACKAGE_URL ] ; then sed -i "s/dl-cdn.alpinelinux.org/${CONT
 # m4 autoconf dpkg-dev dpkg file perl g++ gcc binutils libatomic libgomp libc-dev musl-dev make libbz2 libmagic libstdc++ libgcc pkgconf mpc1 mpfr3 isl gmp
 RUN apk add ${PHPIZE_DEPS}
 # zlib为解压缩工具，在安装memcached时会使用到
-RUN apk add zlib-dev
-RUN apk add libmemcached-dev
-RUN apk add cyrus-sasl-dev
-RUN apk add vim
+# RUN apk add zlib-dev
+# RUN apk add libmemcached-dev
+# RUN apk add cyrus-sasl-dev
+# RUN apk add vim
 
 # docker-php-ext-install是docker官方提供的一个安装命令，可以安装大部分php拓展，但是仍有部分拓展无法安装
 #  pdo_mysql拓展
-# RUN docker-php-ext-install pdo_mysql
+RUN docker-php-ext-install pdo_mysql
 
 #  mysqli拓展
-# RUN docker-php-ext-install mysqli
+RUN docker-php-ext-install mysqli
 
 # bcMatch拓展
-# RUN docker-php-ext-install bcmath
+RUN docker-php-ext-install bcmath
 
 RUN pecl channel-update pecl.php.net
 #  redis拓展
-# RUN pecl install redis-${EXTENSION_REDIS} && docker-php-ext-enable redis
+RUN pecl install redis-${EXTENSION_REDIS} && docker-php-ext-enable redis
 
 # memcached拓展
-RUN pecl install memcache-${EXTENSION_MEMCACHED} && docker-php-ext-enable memcache
+# RUN pecl install memcache-${EXTENSION_MEMCACHED} && docker-php-ext-enable memcache
 
 # swoole扩展
 # RUN pecl install swoole-4.5.10 && docker-php-ext-enable swoole
