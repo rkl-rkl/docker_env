@@ -25,6 +25,8 @@ services:
       context: ./services/php
     container_name: docker_php_fpm
     restart: always
+    ports:
+      - "${FASTCGI_PASS_PORT}:9000"
     networks:
       - test_networks
     volumes:
@@ -79,13 +81,39 @@ services:
       - ${REDIS_DATA}:/data:rw  #挂载数据卷，将redis持久化的数据保存在宿主机的该目录
     environment:
       TZ: "$TZ"
-  memcached:
-    image: memcached:${MEMCACHED_VERSION}
-    container_name: memcached
+
+  redis_slave1:
+    image: redis:${REDIS_VERSION_SLAVE1}
+    container_name: docker_redis_slave1
+    restart: always
+    networks:
+      - test_networks
     ports:
-      - "${MEMCACHED_HOST_PORT}:11211"
+      - "${REDIS_PORT_SLAVE1}:6379"
+    volumes:
+      - ${REDIS_CONF_SLAVE1}:/etc/redis/redis.conf:ro
     environment:
-      MEMCACHED_CACHE_SIZE: "${MEMCACHED_CACHE_SIZE}"
+      TZ: "$TZ"
+
+  redis_slave2:
+    image: redis:${REDIS_VERSION_SLAVE2}
+    container_name: docker_redis_slave2
+    restart: always
+    networks:
+      - test_networks
+    ports:
+      - "${REDIS_PORT_SLAVE2}:6379"
+    volumes:
+      - ${REDIS_CONF_SLAVE2}:/etc/redis/redis.conf:ro
+    environment:
+      TZ: "$TZ"
+  # memcached:
+  #   image: memcached:${MEMCACHED_VERSION}
+  #   container_name: memcached
+  #   ports:
+  #     - "${MEMCACHED_HOST_PORT}:11211"
+  #   environment:
+  #     MEMCACHED_CACHE_SIZE: "${MEMCACHED_CACHE_SIZE}"
 
 networks:
   test_networks:
