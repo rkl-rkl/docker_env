@@ -1,18 +1,26 @@
 ARG PHP_VERSION
 FROM ${PHP_VERSION}
 
+ARG COMPOSER_VERSION
 ARG CONTAINER_PACKAGE_URL
 ARG MAINTAINER
 ARG SYSTEM_ENV
 ARG EXTENSION_REDIS
 ARG EXTENSION_MEMCACHED
+ARG TZ
 
 MAINTAINER  ${MAINTAINER}
 
 #  修改镜像源
 RUN if [ $CONTAINER_PACKAGE_URL ] ; then sed -i "s/dl-cdn.alpinelinux.org/${CONTAINER_PACKAGE_URL}/g" /etc/apk/repositories ; fi
+# RUN if [ $CONTAINER_PACKAGE_URL ] ; then sed -i "s/dl-cdn.alpinelinux.org/${CONTAINER_PACKAGE_URL}/g" /etc/apt/sources.list ; fi
 
-RUN apk update
+RUN apk upgrade --update
+
+# 设置时区
+RUN apk add -U tzdata && cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
+    && echo 'Asia/Shanghai' > /etc/timezone
+
 # Packages
 # RUN apt-get update \
 #     && DEBIAN_FRONTEND=noninteractive apt-get install -y \
@@ -41,7 +49,7 @@ RUN apk update
 # m4 autoconf dpkg-dev dpkg file perl g++ gcc binutils libatomic libgomp libc-dev musl-dev make libbz2 libmagic libstdc++ libgcc pkgconf mpc1 mpfr3 isl gmp
 RUN apk add ${PHPIZE_DEPS}
 # zlib为解压缩工具，在安装memcached时会使用到
-# RUN apk add zlib-dev
+RUN apk add zlib-dev
 # RUN apk add libmemcached-dev
 # RUN apk add cyrus-sasl-dev
 # RUN apk add vim
@@ -53,6 +61,11 @@ RUN docker-php-ext-install pdo_mysql
 #  mysqli拓展
 RUN docker-php-ext-install mysqli
 
+# RUN apk add zlib1g-dev libzip-dev
+RUN apk add libzip-dev
+# zip扩展
+RUN docker-php-ext-install zip
+
 # bcMatch拓展
 RUN docker-php-ext-install bcmath
 
@@ -60,12 +73,26 @@ RUN pecl channel-update pecl.php.net
 #  redis拓展
 RUN pecl install redis-${EXTENSION_REDIS} && docker-php-ext-enable redis
 
+# pcntl拓展
+RUN docker-php-ext-install pcntl
+
 # memcached拓展
 # RUN pecl install memcache-${EXTENSION_MEMCACHED} && docker-php-ext-enable memcache
 
 # swoole扩展
 # RUN pecl install swoole-4.5.10 && docker-php-ext-enable swoole
 
+# gd扩展
+RUN apk add	--update libjpeg
+#RUN apk add	--update libjpeg-dev
+RUN apk add	--update libpng
+RUN apk add	--update libwebp-dev
+RUN apk add	--update libjpeg-turbo-dev
+RUN apk add	--update libpng-dev
+RUN apk add	--update freetype
+RUN apk add	--update freetype-dev
+# docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/
+RUN docker-php-ext-install -j$(nproc) gd
 
 #xdebug拓展，只在开发环境安装
 RUN if [[ $SYSTEM_ENV = "local" ]]; then pecl install http://pecl.php.net/get/xdebug-2.9.6.tgz && docker-php-ext-enable xdebug \
@@ -90,7 +117,7 @@ RUN if [[ $SYSTEM_ENV = "local" ]]; then pecl install http://pecl.php.net/get/xd
 		&& echo "xdebug.remote_log='/var/log/php/xdebug.log'" >> /usr/local/etc/php/conf.d/xdebug.ini; fi
 
 ## 安装composer
-RUN curl -o /usr/bin/composer https://mirrors.aliyun.com/composer/composer.phar \
+RUN curl -o /usr/bin/composer https://getcomposer.org/download/${COMPOSER_VERSION}/composer.phar \
     && chmod +x /usr/bin/composer \
     && composer config -g repo.packagist composer https://mirrors.aliyun.com/composer
 ENV COMPOSER_HOME=/tmp/composer

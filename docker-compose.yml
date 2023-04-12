@@ -22,6 +22,8 @@ services:
         SYSTEM_ENV: ${SYSTEM_ENV}
         EXTENSION_REDIS: ${PHP_EXTENSION_REDIS}
         EXTENSION_MEMCACHED: ${PHP_EXTENSION_MEMCACHED}
+        COMPOSER_VERSION: ${COMPOSER_VERSION}
+        TZ: ${TZ}
       context: ./services/php
     container_name: docker_php_fpm
     restart: always
@@ -33,8 +35,6 @@ services:
       - ${SOURCE_DIR}:/var/www/html:rw
       - ${PHP_CONF_INI}:/usr/local/etc/php/php.ini:ro
       - ${PHP_LOG_DIR}:/var/log:rw
-    environment:
-      TZ: "$TZ"
   nginx:
     build:
       args:
@@ -54,14 +54,14 @@ services:
       - ${NGINX_CONF}:/etc/nginx/nginx.conf:ro
       - ${NGINX_LOG_DIR}:/var/log/nginx/:rw
     environment:
-      TZ: "$TZ"
+      TZ: Asia/Shanghai
   db:
     image: mysql:${MYSQL_VERSION}
     container_name: docker_mysql
     restart: always
     environment:  # 设定环境变量，只给定名称的变量会自动获取运行 Compose 主机上对应变量的值
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      TZ: "$TZ"
+      TZ: Asia/Shanghai
     networks:
       - test_networks
     ports:
@@ -80,7 +80,7 @@ services:
       - ${REDIS_CONF}:/etc/redis/redis.conf:ro
       - ${REDIS_DATA}:/data:rw  #挂载数据卷，将redis持久化的数据保存在宿主机的该目录
     environment:
-      TZ: "$TZ"
+      TZ: Asia/Shanghai
 
   redis_slave1:
     image: redis:${REDIS_VERSION_SLAVE1}
@@ -93,7 +93,7 @@ services:
     volumes:
       - ${REDIS_CONF_SLAVE1}:/etc/redis/redis.conf:ro
     environment:
-      TZ: "$TZ"
+      TZ: Asia/Shanghai
 
   redis_slave2:
     image: redis:${REDIS_VERSION_SLAVE2}
@@ -106,7 +106,7 @@ services:
     volumes:
       - ${REDIS_CONF_SLAVE2}:/etc/redis/redis.conf:ro
     environment:
-      TZ: "$TZ"
+      TZ: Asia/Shanghai
   # memcached:
   #   image: memcached:${MEMCACHED_VERSION}
   #   container_name: memcached
